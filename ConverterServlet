@@ -1,0 +1,56 @@
+package com.codegym;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+// Định tuyến URL: Khi form gửi tới "convert", Servlet này sẽ được kích hoạt
+@WebServlet(name = "ConverterServlet", urlPatterns = {"/convert"})
+public class ConverterServlet extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        // Cấu hình mã hóa hiển thị tiếng Việt
+        response.setContentType("text/html;charset=UTF-8");
+        
+        try (PrintWriter out = response.getWriter()) {
+            try {
+                // Lấy tham số gửi lên từ Form và ép kiểu số thực
+                float rate = Float.parseFloat(request.getParameter("rate"));
+                float usd = Float.parseFloat(request.getParameter("usd"));
+                
+                // Tính toán quy đổi
+                float vnd = rate * usd;
+                
+                // Trả về giao diện HTML hiển thị kết quả
+                out.println("<!DOCTYPE html>");
+                out.println("<html>");
+                out.println("<head><title>Kết quả Chuyển đổi</title></head>");
+                out.println("<body style='font-family: Arial, sans-serif; text-align: center; margin-top: 100px;'>");
+                out.println("<div style='display: inline-block; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>");
+                out.println("<h2 style='color: #1b2a7a;'>KẾT QUẢ CHUYỂN ĐỔI</h2>");
+                out.println("<p style='font-size: 18px; color: #555;'>Tỉ giá: <strong>" + rate + " VND/USD</strong></p>");
+                out.println("<p style='font-size: 18px; color: #555;'>Số tiền USD: <strong>$" + usd + "</strong></p>");
+                out.println("<h3 style='color: #27ae60; font-size: 24px;'>Thành tiền VNĐ: " + String.format("%,.0f", vnd) + " VNĐ</h3>");
+                out.println("<br/><a href='index.jsp' style='text-decoration: none; padding: 10px 20px; background-color: #1b2a7a; color: white; border-radius: 4px; font-weight: bold;'>Quay lại</a>");
+                out.println("</div>");
+                out.println("</body>");
+                out.println("</html>");
+                
+            } catch (NumberFormatException e) {
+                // Bắt lỗi nếu dữ liệu nhập vào không hợp lệ
+                out.println("<!DOCTYPE html>");
+                out.println("<html><body>");
+                out.println("<h2 style='color: red; text-align: center; margin-top: 100px;'>Lỗi: Vui lòng nhập số hợp lệ!</h2>");
+                out.println("<div style='text-align: center;'><a href='index.jsp'>Quay lại</a></div>");
+                out.println("</body></html>");
+            }
+        }
+    }
+}
